@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine's Day Book</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle at center, #831843 0%, #500724 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Floating Background Elements */
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-elements.foreground {
+            z-index: 100;
+            opacity: 0.3;
+        }
+
+        .floating-item {
+            position: absolute;
+            animation: float-up linear infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes float-up {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Book Container */
+        .book-container {
+            perspective: 1800px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .book {
+            width: 90vw;
+            max-width: 800px;
+            height: 85vh;
+            max-height: 600px;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        /* Page Styling */
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f5f5f5 0%, #fff 50%, #ffe4e8 100%);
+            border-radius: 8px;
+            box-shadow: 
+                inset 0 0 30px rgba(0,0,0,0.05),
+                0 10px 40px rgba(0,0,0,0.3);
+            transform-origin: left center;
+            transition: transform 0.8s cubic-bezier(0.15, 1, 0.3, 1);
+            backface-visibility: hidden;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(0,0,0,0.1) 0%, transparent 100%);
+        }
+
+        .page.flipped {
+            transform: rotateY(-180deg);
+            cursor: default;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .page-back {
+            transform: rotateY(180deg);
+            opacity: 0.1;
+        }
+
+        /* Cover Styles */
+        .cover {
+            background: #be185d;
+            background-image: 
+                radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            color: white;
+        }
+
+        .ribbon {
+            position: absolute;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.6s ease;
+        }
+
+        .ribbon.horizontal {
+            width: 100%;
+            height: 60px;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        .ribbon.vertical {
+            width: 60px;
+            height: 100%;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+
+        .ribbon.cut {
+            transform: scale(1.2);
+            opacity: 0;
+            filter: blur(10px);
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Valentine's Week Pages */
+        .date-ribbon {
+            position: absolute;
+            top: 1rem;
+            right: -0.5rem;
+            background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+            color: white;
+            padding: 0.5rem 1.5rem 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 10% 100%);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .emoji-icon {
+            font-size: 5rem;
+            animation: float-emoji 3s ease-in-out infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes float-emoji {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .greeting {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.5rem;
+            color: #831843;
+            margin-bottom: 1.5rem;
+        }
+
+        .corner-decoration {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 3px double #ec4899;
+        }
+
+        .corner-decoration.top-left {
+            top: 1rem;
+            left: 1rem;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-decoration.bottom-right {
+            bottom: 1rem;
+            right: 1rem;
+            border-left: none;
+            border-top: none;
+        }
+
+        .description-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 3px dashed #ec4899;
+            transform: rotate(-1deg);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: 1rem 0;
+        }
+
+        .description-text {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: #500724;
+            text-align: center;
+        }
+
+        .quote {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.25rem;
+            font-style: italic;
+            color: #be185d;
+            text-align: center;
+            margin-top: 1.5rem;
+            max-width: 500px;
+        }
+
+        .continue-hint {
+            position: absolute;
+            bottom: 1.5rem;
+            right: 2rem;
+            color: #ec4899;
+            font-size: 0.875rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Proposal Page */
+        .proposal-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3rem;
+            color: #be185d;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .button-arena {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            position: relative;
+            width: 100%;
+        }
+
+        .yes-button, .no-button {
+            padding: 1.5rem 3rem;
+            border-radius: 50px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .yes-button {
+            background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .yes-button:hover {
+            transform: scale(1.2);
+        }
+
+        .no-button {
+            background: #f3f4f6;
+            color: #6b7280;
+            position: absolute;
+        }
+
+        /* Success Overlay */
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .success-card {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            animation: bounce-in 0.5s ease-out;
+            max-width: 500px;
+        }
+
+        @keyframes bounce-in {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Love Calculator */
+        .calculator-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .name-inputs {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .name-input {
+            flex: 1;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 2px solid #ec4899;
+            font-size: 1rem;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .name-input:read-only {
+            background: #ffe4e8;
+        }
+
+        .plus-symbol {
+            font-size: 2rem;
+            color: #ec4899;
+            font-weight: 700;
+        }
+
+        .calculate-button {
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(236,72,153,0.3);
+            transition: transform 0.2s;
+        }
+
+        .calculate-button:hover {
+            transform: scale(1.05);
+        }
+
+        .result-display {
+            text-align: center;
+            min-height: 150px;
+        }
+
+        .love-percentage {
+            font-family: 'Dancing Script', cursive;
+            font-size: 5rem;
+            color: #be185d;
+            font-weight: 700;
+        }
+
+        .compatibility-message {
+            font-size: 1.25rem;
+            color: #831843;
+            margin-top: 1rem;
+        }
+
+        .copy-button {
+            padding: 0.75rem 2rem;
+            background: #831843;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .copy-button:hover {
+            transform: scale(1.05);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-content {
+                padding: 1.5rem;
+            }
+            
+            .emoji-icon {
+                font-size: 3.5rem;
+            }
+            
+            .page-title {
+                font-size: 1.75rem;
+            }
+            
+            .greeting {
+                font-size: 1.25rem;
+            }
+            
+            .proposal-title {
+                font-size: 2rem;
+            }
+            
+            .yes-button, .no-button {
+                padding: 1rem 2rem;
+                font-size: 1rem;
+            }
+            
+            .button-arena {
+                min-height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Background Elements -->
+    <div class="floating-elements" id="floatingBg"></div>
+    <div class="floating-elements foreground" id="floatingFg"></div>
+
+    <!-- Book Container -->
+    <div class="book-container">
+        <div class="book" id="book">
+            <!-- Pages will be dynamically generated -->
+        </div>
+    </div>
+
+    <!-- Success Overlay -->
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-card">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">💕🎉</div>
+            <h2 style="font-family: 'Dancing Script', cursive; font-size: 2.5rem; color: #be185d; margin-bottom: 1rem;">
+                You Said Yes!
+            </h2>
+            <p style="font-size: 1.1rem; color: #831843; margin-bottom: 2rem;">
+                This makes me the happiest person in the world! 💖
+            </p>
+            <button class="calculate-button" onclick="nextPage()">
+                Calculate Our Love →
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Get name from URL or null
+        const urlParams = new URLSearchParams(window.location.search);
+        let userName = urlParams.get('name') || '';
+
+        let currentPage = 0;
+        let totalPages = 0;
+
+        // Valentine's Week Data
+        const valentineWeek = [
+            {
+                date: 'Feb 7',
+                emoji: '🌹',
+                title: 'Rose Day',
+                description: 'Like roses that fill the air with fragrance, you fill my life with love, beauty, and endless joy.',
+                quote: '"Love is the only flower that grows and blossoms without the aid of seasons."'
+            },
+            {
+                date: 'Feb 8',
+                emoji: '💍',
+                title: 'Propose Day',
+                description: 'Today is about speaking the words my heart has been whispering. Will you walk this beautiful journey with me?',
+                quote: '"I want to spend my lifetime loving you, holding you, and growing old with you."'
+            },
+            {
+                date: 'Feb 9',
+                emoji: '🍫',
+                title: 'Chocolate Day',
+                description: 'Sweet, warm, and comforting - just like you. Every moment with you is a delightful treat.',
+                quote: '"All you need is love. But a little chocolate now and then doesn\'t hurt."'
+            },
+            {
+                date: 'Feb 10',
+                emoji: '🧸',
+                title: 'Teddy Day',
+                description: 'Soft, cuddly, and a faithful companion - a teddy reminds me of the comfort I find in you.',
+                quote: '"Sometimes the smallest things take up the most room in your heart."'
+            },
+            {
+                date: 'Feb 11',
+                emoji: '🤙',
+                title: 'Promise Day',
+                description: 'I promise to love you unconditionally, support you endlessly, and cherish you forever.',
+                quote: '"A promise is forever, and I promise to love you for all of eternity."'
+            },
+            {
+                date: 'Feb 12',
+                emoji: '🤗',
+                title: 'Hug Day',
+                description: 'In your arms, I find my home. A hug from you makes everything feel right in the world.',
+                quote: '"Hugs are like boomerangs - you get them back right away."'
+            },
+            {
+                date: 'Feb 13',
+                emoji: '💋',
+                title: 'Kiss Day',
+                description: 'A kiss is a secret told to the lips instead of the ears. Let me tell you all my secrets.',
+                quote: '"A kiss is a lovely trick designed by nature to stop speech when words become superfluous."'
+            },
+            {
+                date: 'Feb 14',
+                emoji: '❤️',
+                title: "Valentine's Day",
+                description: 'Today we celebrate us - our love, our journey, our beautiful togetherness. Happy Valentine\'s Day!',
+                quote: '"I love you not only for what you are, but for what I am when I am with you."'
+            }
+        ];
+
+        // Initialize
+        function init() {
+            createFloatingElements();
+            createPages();
+            totalPages = 10; // Cover + 8 week + Proposal + Calculator
+        }
+
+        // Create floating background elements
+        function createFloatingElements() {
+            const elements = ['❤️', '🌹', '🎁', '✨'];
+            const containers = [document.getElementById('floatingBg'), document.getElementById('floatingFg')];
+            
+            containers.forEach((container, idx) => {
+                for (let i = 0; i < 15; i++) {
+                    const item = document.createElement('div');
+                    item.className = 'floating-item';
+                    item.textContent = elements[Math.floor(Math.random() * elements.length)];
+                    item.style.left = Math.random() * 100 + '%';
+                    item.style.fontSize = (Math.random() * 1.5 + 0.5) + 'rem';
+                    item.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                    item.style.animationDelay = Math.random() * 5 + 's';
+                    container.appendChild(item);
+                }
+            });
+        }
+
+        // Create all pages
+        function createPages() {
+            const book = document.getElementById('book');
+            
+            // Cover Page
+            book.appendChild(createCoverPage());
+            
+            // Valentine's Week Pages
+            valentineWeek.forEach((day, idx) => {
+                book.appendChild(createWeekPage(day, idx));
+            });
+            
+            // Proposal Page
+            book.appendChild(createProposalPage());
+            
+            // Love Calculator Page
+            book.appendChild(createCalculatorPage());
+            
+            updateZIndices();
+        }
+
+        // Create cover page
+        function createCoverPage() {
+            const page = document.createElement('div');
+            page.className = 'page cover';
+            page.dataset.pageIndex = '0';
+            
+            if (userName) {
+                // State B - With name
+                page.innerHTML = `
+                    <div class="page-content">
+                        <div style="font-size: 6rem; margin-bottom: 2rem;">🎁</div>
+                        <h1 style="font-family: 'Dancing Script', cursive; font-size: 3.5rem; margin-bottom: 1rem;">
+                            For You, ${userName}
+                        </h1>
+                        <p style="font-size: 1.25rem; margin-bottom: 2rem; opacity: 0.9;">
+                            A special gift awaits inside...
+                        </p>
+                        <button class="yes-button" onclick="cutRibbon()" style="transform: scale(1);">
+                            Cut Ribbon 🎀
+                        </button>
+                    </div>
+                    <div class="ribbon horizontal" id="ribbonH"></div>
+                    <div class="ribbon vertical" id="ribbonV"></div>
+                `;
+            } else {
+                // State A - No name
+                page.innerHTML = `
+                    <div class="page-content">
+                        <div style="font-size: 6rem; margin-bottom: 2rem; animation: float-emoji 3s ease-in-out infinite;">🎁</div>
+                        <h1 style="font-family: 'Dancing Script', cursive; font-size: 3.5rem; margin-bottom: 1rem;">
+                            For Someone Special
+                        </h1>
+                        <input 
+                            type="text" 
+                            id="nameInput" 
+                            placeholder="Enter your name..." 
+                            style="padding: 1rem 2rem; border: 3px solid white; border-radius: 50px; background: rgba(255,255,255,0.2); color: white; font-size: 1.1rem; text-align: center; margin-bottom: 2rem; width: 80%; max-width: 300px;"
+                            onkeypress="if(event.key === 'Enter') cutRibbon()"
+                        />
+                        <button class="yes-button" onclick="cutRibbon()" style="transform: scale(1);">
+                            Cut Ribbon 🎀
+                        </button>
+                    </div>
+                    <div class="ribbon horizontal" id="ribbonH"></div>
+                    <div class="ribbon vertical" id="ribbonV"></div>
+                `;
+            }
+            
+            return page;
+        }
+
+        // Create Valentine's week page
+        function createWeekPage(day, index) {
+            const page = document.createElement('div');
+            page.className = 'page';
+            page.dataset.pageIndex = index + 1;
+            page.onclick = () => flipPage(index + 1);
+            
+            const personalization = userName ? `Dearest ${userName},` : 'Dearest,';
+            
+            page.innerHTML = `
+                <div class="page-content">
+                    <div class="date-ribbon">${day.date}</div>
+                    <div class="corner-decoration top-left"></div>
+                    <div class="corner-decoration bottom-right"></div>
+                    <div class="emoji-icon">${day.emoji}</div>
+                    <h2 class="page-title">${day.title}</h2>
+                    <p class="greeting">${personalization}</p>
+                    <div class="description-card">
+                        <p class="description-text">${day.description}</p>
+                    </div>
+                    <p class="quote">${day.quote}</p>
+                    <div class="continue-hint">Tap to Continue →</div>
+                </div>
+                <div class="page-content page-back">
+                    <div style="font-size: 10rem; opacity: 0.1;">${day.emoji}</div>
+                </div>
+            `;
+            
+            return page;
+        }
+
+        // Create proposal page
+        function createProposalPage() {
+            const page = document.createElement('div');
+            page.className = 'page';
+            page.dataset.pageIndex = '9';
+            
+            const personalization = userName ? userName : 'You';
+            
+            page.innerHTML = `
+                <div class="page-content">
+                    <div class="corner-decoration top-left"></div>
+                    <div class="corner-decoration bottom-right"></div>
+                    <p class="greeting">${personalization}</p>
+                    <h2 class="proposal-title">Will You Be My Valentine?</h2>
+                    <p style="font-size: 1.1rem; color: #831843; text-align: center; margin-bottom: 2rem; max-width: 500px;">
+                        We've journeyed through 8 beautiful days together. Each page has been a chapter of our story. Now, I have one question...
+                    </p>
+                    <div class="button-arena" id="buttonArena">
+                        <button class="yes-button" onclick="handleYes()">
+                            YES ❤️
+                        </button>
+                        <button class="no-button" id="noButton" onmouseenter="moveNoButton()" ontouchstart="moveNoButton(event)">
+                            NO
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return page;
+        }
+
+        // Create calculator page
+        function createCalculatorPage() {
+            const page = document.createElement('div');
+            page.className = 'page';
+            page.dataset.pageIndex = '10';
+            
+            page.innerHTML = `
+                <div class="page-content">
+                    <div class="corner-decoration top-left"></div>
+                    <div class="corner-decoration bottom-right"></div>
+                    <h2 class="page-title">Love Calculator</h2>
+                    <div class="calculator-container">
+                        <div class="name-inputs">
+                            <input type="text" class="name-input" value="${userName || 'Your Name'}" readonly />
+                            <span class="plus-symbol">+</span>
+                            <input type="text" class="name-input" id="partnerName" placeholder="Partner's Name" />
+                        </div>
+                        <button class="calculate-button" onclick="calculateLove()">
+                            Calculate Compatibility 💕
+                        </button>
+                        <div class="result-display" id="resultDisplay"></div>
+                        <button class="copy-button" onclick="copyLink()" style="display: none;" id="copyBtn">
+                            Copy Link to Send 📋
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return page;
+        }
+
+        // Cut ribbon animation
+        function cutRibbon() {
+            if (!userName) {
+                const nameInput = document.getElementById('nameInput');
+                if (!nameInput || !nameInput.value.trim()) {
+                    alert('Please enter your name first! 💝');
+                    return;
+                }
+                userName = nameInput.value.trim();
+                // Update URL
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('name', userName);
+                window.history.pushState({}, '', newUrl);
+            }
+            
+            // Animate ribbons
+            document.getElementById('ribbonH').classList.add('cut');
+            document.getElementById('ribbonV').classList.add('cut');
+            
+            // Create confetti
+            createConfetti();
+            
+            // Flip page after animation
+            setTimeout(() => {
+                flipPage(0);
+            }, 600);
+        }
+
+        // Flip page function
+        function flipPage(pageIndex) {
+            const page = document.querySelector(`[data-page-index="${pageIndex}"]`);
+            if (page && !page.classList.contains('flipped')) {
+                page.classList.add('flipped');
+                currentPage = pageIndex + 1;
+                updateZIndices();
+            }
+        }
+
+        // Update z-indices for proper stacking
+        function updateZIndices() {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach((page, idx) => {
+                const pageIdx = parseInt(page.dataset.pageIndex);
+                if (page.classList.contains('flipped')) {
+                    page.style.zIndex = pageIdx;
+                } else {
+                    page.style.zIndex = pages.length - pageIdx;
+                }
+            });
+        }
+
+        // Move NO button
+        function moveNoButton(event) {
+            if (event) event.preventDefault();
+            const button = document.getElementById('noButton');
+            const arena = document.getElementById('buttonArena');
+            const arenaRect = arena.getBoundingClientRect();
+            const buttonRect = button.getBoundingClientRect();
+            
+            const maxX = arenaRect.width - buttonRect.width - 40;
+            const maxY = arenaRect.height - buttonRect.height - 40;
+            
+            const newX = Math.random() * maxX;
+            const newY = Math.random() * maxY;
+            
+            button.style.left = newX + 'px';
+            button.style.top = newY + 'px';
+        }
+
+        // Handle YES click
+        function handleYes() {
+            createConfetti();
+            document.getElementById('successOverlay').style.display = 'flex';
+        }
+
+        // Next page from overlay
+        function nextPage() {
+            document.getElementById('successOverlay').style.display = 'none';
+            flipPage(9);
+        }
+
+        // Calculate love compatibility
+        function calculateLove() {
+            const partnerName = document.getElementById('partnerName').value.trim();
+            if (!partnerName) {
+                alert('Please enter your partner\'s name! 💕');
+                return;
+            }
+            
+            const name1 = userName.toLowerCase();
+            const name2 = partnerName.toLowerCase();
+            
+            // Calculate score
+            let score;
+            if (name1 === name2 || name1.includes('love') || name2.includes('love')) {
+                score = 100;
+            } else {
+                let sum = 0;
+                (name1 + name2).split('').forEach(char => {
+                    sum += char.charCodeAt(0);
+                });
+                score = 60 + (sum % 40);
+            }
+            
+            // Animate counting
+            const resultDisplay = document.getElementById('resultDisplay');
+            let current = 0;
+            const interval = setInterval(() => {
+                current++;
+                resultDisplay.innerHTML = `<div class="love-percentage">${current}%</div>`;
+                
+                if (current >= score) {
+                    clearInterval(interval);
+                    
+                    // Show message
+                    let message = '';
+                    if (score >= 90) {
+                        message = 'Perfect Match! Soulmates Forever! 💕';
+                        createConfetti();
+                    } else if (score >= 80) {
+                        message = 'Great chemistry! Love is in the air! 💖';
+                    } else {
+                        message = 'Good potential! Keep nurturing your love! 💝';
+                    }
+                    
+                    resultDisplay.innerHTML += `<div class="compatibility-message">${message}</div>`;
+                    document.getElementById('copyBtn').style.display = 'block';
+                }
+            }, 20);
+        }
+
+        // Copy link
+        function copyLink() {
+            const url = new URL(window.location);
+            url.searchParams.set('name', userName);
+            
+            navigator.clipboard.writeText(url.toString()).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.textContent = 'Copied! ✓';
+                setTimeout(() => {
+                    btn.textContent = 'Copy Link to Send 📋';
+                }, 2000);
+            });
+        }
+
+        // Create confetti
+        function createConfetti() {
+            const colors = ['#ec4899', '#ffd700', '#ffffff'];
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = '50%';
+                confetti.style.top = '50%';
+                
+                const tx = (Math.random() - 0.5) * 1000;
+                const ty = (Math.random() - 0.5) * 1000;
+                confetti.style.setProperty('--tx', tx + 'px');
+                confetti.style.setProperty('--ty', ty + 'px');
+                
+                confetti.style.animation = `confetti-fall ${Math.random() * 1 + 1}s ease-out forwards`;
+                
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 2000);
+            }
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
